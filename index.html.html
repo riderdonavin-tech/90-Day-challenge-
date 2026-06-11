@@ -1,0 +1,941 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Donavin — 90 Day Upgrade</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap');
+
+  :root {
+    --black: #0A0A0A;
+    --deep: #111114;
+    --card: #16161A;
+    --border: #222228;
+    --gold: #C9A84C;
+    --gold-dim: #7A6230;
+    --gold-glow: rgba(201,168,76,0.12);
+    --white: #F0EDE6;
+    --muted: #6B6B78;
+    --green: #2ECC71;
+    --red: #E74C3C;
+    --phase1: #C9A84C;
+    --phase2: #4CA8C9;
+    --phase3: #A84CC9;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--black);
+    color: var(--white);
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+
+  /* HEADER */
+  .header {
+    background: var(--deep);
+    border-bottom: 1px solid var(--border);
+    padding: 32px 24px 24px;
+    position: relative;
+    overflow: hidden;
+  }
+  .header::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--gold), transparent);
+  }
+  .header-eyebrow {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--gold);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+  .header-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(42px, 10vw, 72px);
+    letter-spacing: 2px;
+    line-height: 0.95;
+    color: var(--white);
+  }
+  .header-title span { color: var(--gold); }
+  .header-sub {
+    margin-top: 12px;
+    color: var(--muted);
+    font-size: 13px;
+    max-width: 480px;
+  }
+
+  /* PHASE PILLS */
+  .phase-bar {
+    display: flex;
+    gap: 8px;
+    padding: 16px 24px;
+    background: var(--deep);
+    border-bottom: 1px solid var(--border);
+    overflow-x: auto;
+  }
+  .phase-pill {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    border-radius: 4px;
+    border: 1px solid var(--border);
+    white-space: nowrap;
+    cursor: pointer;
+    transition: all 0.2s;
+    background: transparent;
+    color: var(--muted);
+    font-family: 'Inter', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+  .phase-pill.active, .phase-pill:hover { border-color: var(--gold); color: var(--white); background: var(--gold-glow); }
+  .phase-dot { width: 8px; height: 8px; border-radius: 50%; }
+
+  /* MAIN LAYOUT */
+  .main { padding: 24px; max-width: 900px; margin: 0 auto; }
+
+  /* DAILY SYSTEM */
+  .section-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 3px;
+    color: var(--gold);
+    text-transform: uppercase;
+    margin-bottom: 16px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .daily-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 12px;
+    margin-bottom: 32px;
+  }
+
+  .block-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 20px;
+    position: relative;
+    overflow: hidden;
+  }
+  .block-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 3px;
+    height: 100%;
+  }
+  .block-card.morning::before { background: var(--gold); }
+  .block-card.work::before { background: var(--phase2); }
+  .block-card.evening::before { background: var(--phase3); }
+
+  .block-time {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 2px;
+    margin-bottom: 6px;
+  }
+  .block-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 22px;
+    letter-spacing: 1px;
+    margin-bottom: 12px;
+  }
+  .block-card.morning .block-title { color: var(--gold); }
+  .block-card.work .block-title { color: var(--phase2); }
+  .block-card.evening .block-title { color: var(--phase3); }
+
+  .task-list { list-style: none; }
+  .task-list li {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 6px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 13px;
+    color: #C8C5BE;
+  }
+  .task-list li:last-child { border-bottom: none; }
+  .task-list li::before {
+    content: '→';
+    color: var(--gold);
+    font-size: 11px;
+    margin-top: 2px;
+    flex-shrink: 0;
+  }
+
+  /* PHASE SECTIONS */
+  .phase-section { margin-bottom: 40px; display: none; }
+  .phase-section.visible { display: block; }
+
+  .phase-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 20px;
+    padding: 16px 20px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+  }
+  .phase-number {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 48px;
+    line-height: 1;
+    opacity: 0.15;
+  }
+  .phase-info {}
+  .phase-name {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 26px;
+    letter-spacing: 1px;
+  }
+  .phase-range {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 1px;
+  }
+
+  .focus-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+
+  .focus-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 16px;
+  }
+  .focus-area {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+  .focus-goal {
+    font-size: 13px;
+    color: var(--white);
+    font-weight: 500;
+    margin-bottom: 8px;
+  }
+  .focus-actions { list-style: none; }
+  .focus-actions li {
+    font-size: 12px;
+    color: var(--muted);
+    padding: 3px 0;
+    padding-left: 12px;
+    position: relative;
+  }
+  .focus-actions li::before {
+    content: '·';
+    position: absolute;
+    left: 0;
+    color: var(--gold);
+  }
+
+  /* WEEKLY TRACKER */
+  .tracker-section { margin-bottom: 40px; }
+
+  .week-grid {
+    display: grid;
+    grid-template-columns: 160px repeat(7, 1fr);
+    gap: 2px;
+    background: var(--border);
+    border-radius: 6px;
+    overflow: hidden;
+    margin-bottom: 12px;
+  }
+  .week-cell {
+    background: var(--card);
+    padding: 10px 8px;
+    text-align: center;
+    font-size: 11px;
+  }
+  .week-cell.header {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--gold);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    background: var(--deep);
+  }
+  .week-cell.label {
+    text-align: left;
+    font-size: 12px;
+    color: var(--muted);
+    padding-left: 12px;
+    background: var(--deep);
+  }
+  .check-btn {
+    width: 24px;
+    height: 24px;
+    border-radius: 4px;
+    border: 1.5px solid var(--border);
+    background: transparent;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s;
+    font-size: 13px;
+  }
+  .check-btn:hover { border-color: var(--gold); }
+  .check-btn.done { background: var(--gold); border-color: var(--gold); color: var(--black); }
+  .check-btn.missed { background: var(--red); border-color: var(--red); color: white; }
+
+  /* MILESTONES */
+  .milestone-list { list-style: none; }
+  .milestone-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .milestone-item:last-child { border-bottom: none; }
+  .milestone-day {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--gold);
+    white-space: nowrap;
+    width: 50px;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+  .milestone-text { font-size: 13px; color: var(--white); }
+  .milestone-sub { font-size: 12px; color: var(--muted); margin-top: 2px; }
+
+  /* RULES */
+  .rules-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 12px;
+    margin-bottom: 32px;
+  }
+  .rule-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 16px;
+    text-align: center;
+  }
+  .rule-icon { font-size: 28px; margin-bottom: 8px; }
+  .rule-title { font-weight: 700; font-size: 13px; margin-bottom: 4px; color: var(--white); }
+  .rule-desc { font-size: 12px; color: var(--muted); }
+
+  /* TABS */
+  .tab-bar {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 24px;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 0;
+  }
+  .tab-btn {
+    padding: 10px 20px;
+    background: transparent;
+    border: none;
+    color: var(--muted);
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+    transition: all 0.2s;
+  }
+  .tab-btn.active { color: var(--white); border-bottom-color: var(--gold); }
+  .tab-btn:hover { color: var(--white); }
+
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+
+  /* QUOTE */
+  .quote-block {
+    background: var(--gold-glow);
+    border: 1px solid var(--gold-dim);
+    border-left: 3px solid var(--gold);
+    border-radius: 0 6px 6px 0;
+    padding: 16px 20px;
+    margin-bottom: 24px;
+  }
+  .quote-text {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 18px;
+    letter-spacing: 1px;
+    color: var(--gold);
+    margin-bottom: 4px;
+  }
+  .quote-attr { font-size: 11px; color: var(--muted); font-style: italic; }
+
+  /* PROGRESS BAR */
+  .progress-wrap { margin-bottom: 32px; }
+  .progress-label {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 6px;
+    font-size: 12px;
+    color: var(--muted);
+  }
+  .progress-track {
+    height: 4px;
+    background: var(--border);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--gold), var(--phase2));
+    border-radius: 2px;
+    transition: width 0.5s ease;
+  }
+
+  /* SCORE */
+  .score-display {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+  .score-num {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 36px;
+    color: var(--gold);
+  }
+  .score-label { font-size: 12px; color: var(--muted); }
+
+  @media (max-width: 600px) {
+    .main { padding: 16px; }
+    .week-grid { grid-template-columns: 120px repeat(7, 1fr); }
+    .phase-bar { padding: 12px 16px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-eyebrow">Personal Upgrade Protocol</div>
+  <div class="header-title">90 DAY<br><span>EXECUTION</span><br>PLAN</div>
+  <div class="header-sub">Money · Looks · Body · Mind — built for Donavin. No excuses. No resets. Just execution.</div>
+</div>
+
+<div class="phase-bar">
+  <button class="phase-pill active" onclick="showTab('overview')">
+    <span class="phase-dot" style="background:var(--gold)"></span> Overview
+  </button>
+  <button class="phase-pill" onclick="showTab('daily')">
+    <span class="phase-dot" style="background:var(--phase2)"></span> Daily System
+  </button>
+  <button class="phase-pill" onclick="showTab('phases')">
+    <span class="phase-dot" style="background:var(--phase3)"></span> 90-Day Phases
+  </button>
+  <button class="phase-pill" onclick="showTab('tracker')">
+    <span class="phase-dot" style="background:var(--green)"></span> Week Tracker
+  </button>
+  <button class="phase-pill" onclick="showTab('milestones')">
+    <span class="phase-dot" style="background:var(--gold)"></span> Milestones
+  </button>
+</div>
+
+<div class="main">
+
+  <!-- OVERVIEW TAB -->
+  <div class="tab-content active" id="tab-overview">
+
+    <div class="quote-block">
+      <div class="quote-text">"You don't rise to the level of your goals. You fall to the level of your systems."</div>
+      <div class="quote-attr">— James Clear</div>
+    </div>
+
+    <div class="section-label">The Mission</div>
+
+    <div class="rules-grid" style="margin-bottom:32px">
+      <div class="rule-card">
+        <div class="rule-icon">💰</div>
+        <div class="rule-title">Money</div>
+        <div class="rule-desc">Productise your n8n skills. First paying automation client within 30 days.</div>
+      </div>
+      <div class="rule-card">
+        <div class="rule-icon">💅</div>
+        <div class="rule-title">Looks</div>
+        <div class="rule-desc">Locked-in grooming routine. Intentional style. Look sharp every single day.</div>
+      </div>
+      <div class="rule-card">
+        <div class="rule-icon">💪</div>
+        <div class="rule-title">Body</div>
+        <div class="rule-desc">Daily movement. Build the habit first. Body follows discipline.</div>
+      </div>
+      <div class="rule-card">
+        <div class="rule-icon">🧠</div>
+        <div class="rule-title">Mind</div>
+        <div class="rule-desc">Break the procrastination loop. Daily journaling. One task. Win every day.</div>
+      </div>
+    </div>
+
+    <div class="section-label">The 3 Iron Rules</div>
+    <div class="rules-grid">
+      <div class="rule-card">
+        <div class="rule-icon">🎯</div>
+        <div class="rule-title">One Task Per Day</div>
+        <div class="rule-desc">Pick ONE business task each morning. Do not end the day without completing it.</div>
+      </div>
+      <div class="rule-card">
+        <div class="rule-icon">🔁</div>
+        <div class="rule-title">Never Miss Twice</div>
+        <div class="rule-desc">Miss a habit once — fine. Miss twice in a row — you're building a new bad habit.</div>
+      </div>
+      <div class="rule-card">
+        <div class="rule-icon">📵</div>
+        <div class="rule-title">No Phone Before Work Block</div>
+        <div class="rule-desc">Phone check before your work block poisons your focus for hours. Earn it after.</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- DAILY SYSTEM TAB -->
+  <div class="tab-content" id="tab-daily">
+
+    <div class="section-label">Your Daily Non-Negotiables</div>
+
+    <div class="daily-grid">
+      <div class="block-card morning">
+        <div class="block-time">BLOCK 1 · 30 MIN</div>
+        <div class="block-title">Morning Sharp</div>
+        <ul class="task-list">
+          <li>Face wash + moisturiser + SPF (5 min)</li>
+          <li>Fix hair intentionally — not just run hands through it</li>
+          <li>Outfit chosen night before — wear with intention</li>
+          <li>Journal: write the ONE task you will complete today</li>
+          <li>No phone until this block is done</li>
+        </ul>
+      </div>
+
+      <div class="block-card work">
+        <div class="block-time">BLOCK 2 · 60–90 MIN</div>
+        <div class="block-title">Deep Work</div>
+        <ul class="task-list">
+          <li>ONE task only — the one from the journal</li>
+          <li>Timer on. Phone face-down or in another room</li>
+          <li>No tabs unrelated to the task</li>
+          <li>Current focus: n8n automation productisation</li>
+          <li>Work until done or timer ends — no exceptions</li>
+        </ul>
+      </div>
+
+      <div class="block-card evening">
+        <div class="block-time">BLOCK 3 · 30 MIN</div>
+        <div class="block-title">Body + Review</div>
+        <ul class="task-list">
+          <li>20 min movement — gym, walk, home workout (any)</li>
+          <li>Did you complete the one task? Yes = win. Log it.</li>
+          <li>No = what blocked you? Write it. Fix it tomorrow.</li>
+          <li>Lay out tomorrow's outfit</li>
+          <li>Rate today 1–10. Aim to average 7+ over 90 days</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="section-label">Grooming Stack</div>
+    <div class="focus-grid">
+      <div class="focus-card">
+        <div class="focus-area">Morning · 5 min</div>
+        <div class="focus-goal">Face Routine</div>
+        <ul class="focus-actions">
+          <li>Cleanser (gentle, daily)</li>
+          <li>Moisturiser with SPF</li>
+          <li>That's it — keep it simple</li>
+        </ul>
+      </div>
+      <div class="focus-card">
+        <div class="focus-area">Weekly</div>
+        <div class="focus-goal">Maintenance</div>
+        <ul class="focus-actions">
+          <li>Haircut every 3 weeks</li>
+          <li>Nails trimmed & clean</li>
+          <li>Shoes clean before leaving</li>
+        </ul>
+      </div>
+      <div class="focus-card">
+        <div class="focus-area">Style System</div>
+        <div class="focus-goal">Remove Decision Fatigue</div>
+        <ul class="focus-actions">
+          <li>Build 3 "reliable" outfits that always work</li>
+          <li>Rotate these — stop reinventing daily</li>
+          <li>One clean watch or chain consistently</li>
+        </ul>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- PHASES TAB -->
+  <div class="tab-content" id="tab-phases">
+
+    <!-- PHASE 1 -->
+    <div class="phase-section visible">
+      <div class="phase-header">
+        <div class="phase-number" style="color:var(--phase1)">01</div>
+        <div class="phase-info">
+          <div class="phase-name" style="color:var(--phase1)">Foundation</div>
+          <div class="phase-range">Days 1–30 · Build the habits. Land first client.</div>
+        </div>
+      </div>
+
+      <div class="focus-grid">
+        <div class="focus-card">
+          <div class="focus-area">💰 Money</div>
+          <div class="focus-goal">Package & Sell One Automation</div>
+          <ul class="focus-actions">
+            <li>Pick your strongest n8n workflow (lead research agent)</li>
+            <li>Write a one-page offer: what it does, price, deliverable</li>
+            <li>Identify 10 SA SMBs who need this</li>
+            <li>Send 3 outreach messages per day using your own workflow</li>
+            <li>Goal: 1 paying client by Day 30</li>
+          </ul>
+        </div>
+        <div class="focus-card">
+          <div class="focus-area">💅 Looks</div>
+          <div class="focus-goal">Lock In The Routine</div>
+          <ul class="focus-actions">
+            <li>Buy the 3 skincare products this week</li>
+            <li>Do the routine every single morning without exception</li>
+            <li>Identify your 3 reliable outfits by Day 7</li>
+            <li>Schedule haircut for Week 3</li>
+          </ul>
+        </div>
+        <div class="focus-card">
+          <div class="focus-area">💪 Body</div>
+          <div class="focus-goal">Move Every Day</div>
+          <ul class="focus-actions">
+            <li>20 min minimum — intensity doesn't matter yet</li>
+            <li>Track streak in the week tracker</li>
+            <li>No gym? Walk. No time? 20 pushups. Just move.</li>
+          </ul>
+        </div>
+        <div class="focus-card">
+          <div class="focus-area">🧠 Mind</div>
+          <div class="focus-goal">Break Procrastination Loop</div>
+          <ul class="focus-actions">
+            <li>Journal the ONE task every morning</li>
+            <li>Review every evening — honest score</li>
+            <li>Identify your #1 procrastination trigger by Day 14</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- PHASE 2 -->
+    <div class="phase-section visible">
+      <div class="phase-header">
+        <div class="phase-number" style="color:var(--phase2)">02</div>
+        <div class="phase-info">
+          <div class="phase-name" style="color:var(--phase2)">Build</div>
+          <div class="phase-range">Days 31–60 · Scale what's working. Upgrade the body.</div>
+        </div>
+      </div>
+
+      <div class="focus-grid">
+        <div class="focus-card">
+          <div class="focus-area">💰 Money</div>
+          <div class="focus-goal">Get to R5k–R10k MRR</div>
+          <ul class="focus-actions">
+            <li>Deliver first client — get a testimonial</li>
+            <li>Use testimonial in outreach for next 5 clients</li>
+            <li>Add a second automation product/service</li>
+            <li>Start tracking revenue weekly in a spreadsheet</li>
+          </ul>
+        </div>
+        <div class="focus-card">
+          <div class="focus-area">💅 Looks</div>
+          <div class="focus-goal">Level Up Style</div>
+          <ul class="focus-actions">
+            <li>Audit wardrobe — remove anything that doesn't work</li>
+            <li>Invest in 1–2 quality pieces (not quantity)</li>
+            <li>Grooming routine should be automatic by now</li>
+          </ul>
+        </div>
+        <div class="focus-card">
+          <div class="focus-area">💪 Body</div>
+          <div class="focus-goal">Add Structure</div>
+          <ul class="focus-actions">
+            <li>Add a 3-day gym program (push/pull/legs or full body)</li>
+            <li>Track water intake — 2.5L daily minimum</li>
+            <li>Sleep before midnight every night</li>
+          </ul>
+        </div>
+        <div class="focus-card">
+          <div class="focus-area">🧠 Mind</div>
+          <div class="focus-goal">Compound The Wins</div>
+          <ul class="focus-actions">
+            <li>Review Phase 1 — what worked? Double down.</li>
+            <li>Start reading 10 pages/day (business or mindset)</li>
+            <li>Reduce social media to after 6pm only</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- PHASE 3 -->
+    <div class="phase-section visible">
+      <div class="phase-header">
+        <div class="phase-number" style="color:var(--phase3)">03</div>
+        <div class="phase-info">
+          <div class="phase-name" style="color:var(--phase3)">Elevate</div>
+          <div class="phase-range">Days 61–90 · Become the person. Set the next 90 days.</div>
+        </div>
+      </div>
+
+      <div class="focus-grid">
+        <div class="focus-card">
+          <div class="focus-area">💰 Money</div>
+          <div class="focus-goal">Systems & Scale</div>
+          <ul class="focus-actions">
+            <li>Automate your own client onboarding with n8n</li>
+            <li>Explore retainer model — recurring revenue</li>
+            <li>Plan next income stream (padel synergy or digital product)</li>
+            <li>Set Day 90 revenue target and hit it</li>
+          </ul>
+        </div>
+        <div class="focus-card">
+          <div class="focus-area">💅 Looks</div>
+          <div class="focus-goal">Identity Locked</div>
+          <ul class="focus-actions">
+            <li>Grooming & style should feel natural, not forced</li>
+            <li>Get photos taken — document the transformation</li>
+            <li>Consider fragrance as a final signature detail</li>
+          </ul>
+        </div>
+        <div class="focus-card">
+          <div class="focus-area">💪 Body</div>
+          <div class="focus-goal">Visible Progress</div>
+          <ul class="focus-actions">
+            <li>Compare Day 1 vs Day 90 photos</li>
+            <li>Dial in nutrition — track protein intake</li>
+            <li>Energy levels should be noticeably higher by now</li>
+          </ul>
+        </div>
+        <div class="focus-card">
+          <div class="focus-area">🧠 Mind</div>
+          <div class="focus-goal">New Identity Installed</div>
+          <ul class="focus-actions">
+            <li>Write a full reflection: who were you Day 1 vs Day 90?</li>
+            <li>Identify what habits are now automatic</li>
+            <li>Plan your next 90-day cycle at a higher level</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- TRACKER TAB -->
+  <div class="tab-content" id="tab-tracker">
+
+    <div class="section-label">Week 1 Daily Tracker</div>
+    <p style="font-size:12px; color:var(--muted); margin-bottom:16px;">Check off each habit daily. Green = done. Red = missed. Never miss twice in a row.</p>
+
+    <div id="tracker-container"></div>
+
+    <div style="margin-top:24px">
+      <div class="score-display">
+        <div class="score-num" id="score-display">0%</div>
+        <div class="score-label">Week 1<br>Completion</div>
+      </div>
+      <div class="progress-wrap">
+        <div class="progress-track">
+          <div class="progress-fill" id="progress-fill" style="width:0%"></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- MILESTONES TAB -->
+  <div class="tab-content" id="tab-milestones">
+
+    <div class="section-label">Key Checkpoints</div>
+
+    <ul class="milestone-list">
+      <li class="milestone-item">
+        <div class="milestone-day">Day 7</div>
+        <div>
+          <div class="milestone-text">Grooming routine is automatic. 3 reliable outfits selected.</div>
+          <div class="milestone-sub">You've sent 21 outreach messages. Skincare products purchased.</div>
+        </div>
+      </li>
+      <li class="milestone-item">
+        <div class="milestone-day">Day 14</div>
+        <div>
+          <div class="milestone-text">First client conversation booked. Zero missed daily habits.</div>
+          <div class="milestone-sub">You've identified your #1 procrastination trigger and have a counter-move.</div>
+        </div>
+      </li>
+      <li class="milestone-item">
+        <div class="milestone-day">Day 21</div>
+        <div>
+          <div class="milestone-text">Fresh haircut. 21-day streak of morning routine.</div>
+          <div class="milestone-sub">At least one proposal sent. Body feeling noticeably different from movement.</div>
+        </div>
+      </li>
+      <li class="milestone-item">
+        <div class="milestone-day">Day 30</div>
+        <div>
+          <div class="milestone-text">🎯 First paying automation client. Phase 1 complete.</div>
+          <div class="milestone-sub">Take a progress photo. Write a short reflection. Set Phase 2 targets.</div>
+        </div>
+      </li>
+      <li class="milestone-item">
+        <div class="milestone-day">Day 45</div>
+        <div>
+          <div class="milestone-text">Second client secured. Gym program running 3x/week.</div>
+          <div class="milestone-sub">Wardrobe audited. Sleep before midnight is a locked habit.</div>
+        </div>
+      </li>
+      <li class="milestone-item">
+        <div class="milestone-day">Day 60</div>
+        <div>
+          <div class="milestone-text">R5k–R10k MRR hit. Phase 2 complete.</div>
+          <div class="milestone-sub">Review everything. Energy levels up. Social media usage down. Style is sharp.</div>
+        </div>
+      </li>
+      <li class="milestone-item">
+        <div class="milestone-day">Day 75</div>
+        <div>
+          <div class="milestone-text">Retainer model explored. Client onboarding automated.</div>
+          <div class="milestone-sub">Reading habit locked in. 10 pages/day minimum.</div>
+        </div>
+      </li>
+      <li class="milestone-item">
+        <div class="milestone-day">Day 90</div>
+        <div>
+          <div class="milestone-text">🏆 Full transformation checkpoint. Write your Day 1 vs Day 90 story.</div>
+          <div class="milestone-sub">New identity installed. Next 90-day plan written. You are not the same person.</div>
+        </div>
+      </li>
+    </ul>
+
+  </div>
+
+</div>
+
+<script>
+  // Tab switching
+  function showTab(id) {
+    document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.phase-pill').forEach(p => p.classList.remove('active'));
+    document.getElementById('tab-' + id).classList.add('active');
+    event.currentTarget.classList.add('active');
+  }
+
+  // Tracker data
+  const habits = [
+    'Morning Routine (grooming)',
+    'Journal + One Task',
+    'Deep Work Block',
+    'Evening Movement',
+    'Day Review / Score'
+  ];
+  const days = ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN'];
+  const stateKey = 'donavin_tracker_v1';
+
+  function loadState() {
+    try { return JSON.parse(localStorage.getItem(stateKey)) || {}; } catch(e) { return {}; }
+  }
+  function saveState(state) {
+    try { localStorage.setItem(stateKey, JSON.stringify(state)); } catch(e) {}
+  }
+
+  let state = loadState();
+
+  function buildTracker() {
+    const container = document.getElementById('tracker-container');
+    container.innerHTML = '';
+
+    const grid = document.createElement('div');
+    grid.className = 'week-grid';
+
+    // Header row
+    const emptyHeader = document.createElement('div');
+    emptyHeader.className = 'week-cell header';
+    emptyHeader.textContent = 'HABIT';
+    grid.appendChild(emptyHeader);
+
+    days.forEach(d => {
+      const cell = document.createElement('div');
+      cell.className = 'week-cell header';
+      cell.textContent = d;
+      grid.appendChild(cell);
+    });
+
+    // Habit rows
+    habits.forEach((habit, hi) => {
+      const label = document.createElement('div');
+      label.className = 'week-cell label';
+      label.textContent = habit;
+      grid.appendChild(label);
+
+      days.forEach((day, di) => {
+        const cell = document.createElement('div');
+        cell.className = 'week-cell';
+        const key = `${hi}_${di}`;
+        const val = state[key] || 'none';
+
+        const btn = document.createElement('button');
+        btn.className = 'check-btn' + (val === 'done' ? ' done' : val === 'missed' ? ' missed' : '');
+        btn.textContent = val === 'done' ? '✓' : val === 'missed' ? '✗' : '';
+        btn.onclick = () => toggleCell(key, btn);
+        cell.appendChild(btn);
+        grid.appendChild(cell);
+      });
+    });
+
+    container.appendChild(grid);
+    updateScore();
+  }
+
+  function toggleCell(key, btn) {
+    const current = state[key] || 'none';
+    const next = current === 'none' ? 'done' : current === 'done' ? 'missed' : 'none';
+    state[key] = next;
+    saveState(state);
+    btn.className = 'check-btn' + (next === 'done' ? ' done' : next === 'missed' ? ' missed' : '');
+    btn.textContent = next === 'done' ? '✓' : next === 'missed' ? '✗' : '';
+    updateScore();
+  }
+
+  function updateScore() {
+    const total = habits.length * days.length;
+    const done = Object.values(state).filter(v => v === 'done').length;
+    const pct = total > 0 ? Math.round((done / total) * 100) : 0;
+    document.getElementById('score-display').textContent = pct + '%';
+    document.getElementById('progress-fill').style.width = pct + '%';
+  }
+
+  buildTracker();
+</script>
+
+</body>
+</html>
